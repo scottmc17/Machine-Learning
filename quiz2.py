@@ -1,28 +1,31 @@
-import pandas as pd 
+import pandas as pd
+import seaborn as sns
+from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
+knn = KNeighborsClassifier()
 
-
-classes = pd.read_csv('animal_classes.csv', usecols = ['Class_Number', 'Class_Type'])
+#DF 
+animals = pd.read_csv('animal_classes.csv', usecols = ['Class_Number', 'Class_Type'])
 train = pd.read_csv('animals_train.csv')
+test = pd.read_csv("animals_test.csv")
 
+train_DF = train.iloc[:,:16]
+target_DF = train.iloc[:,16]
+test_DF = test.iloc[:,1:]
+animals_DF = test.iloc[:,0]
+types_DF = animals.iloc[:,1]
 
-df = pd.DataFrame(classes)
-df_2 = pd.DataFrame(train)
+knn.fit(X=train_DF, y=target_DF)
 
-#print(df_2)
+predicted = knn.predict(X=test_DF)
 
-#df_result = pd.DataFrame(classes, columns=['value'])
+loc = 0
+outfile = open('predictions.csv', 'w')
+header = 'Animal Name, Predicted Type'
+outfile.write(header + '\n')
 
-
-'''
-for label, content in df_2.items():
-    print(f'label: {label}')
-    print(f'content: {content}', sep='\n')
-'''
-
-'''
-from sklearn.linear_model import LinearRegression
-
-lr = LinearRegression()
-
-lr.fit(X=df_2, y=df_2["Class_Number"])
-'''
+for p in predicted:
+    line = f"{animals_DF[loc]},{types_DF[int(p)-1]}\n"
+    print(line)
+    outfile.write(line)
+    loc += 1
